@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h3>🔐 Login</h3>
+        <form id="loginForm">
+            <input id="username" placeholder="Username" required>
+            <input id="password" type="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+    <hr>
+
+
+    <h2>📚 Book Management System</h2>
+
+
+    <!-- Book Form -->
+    <form id="bookForm">
+        <input type="hidden" id="bookId">
+
+        <input type="text" id="title" placeholder="Title" required>
+        <input type="text" id="author" placeholder="Author" required>
+        <input type="number" id="yearPublished" placeholder="Year Published" required />
+
+        <button type="submit">Save Book</button>
+        <button type="button" onclick="resetForm()">Cancel</button>
+    </form>
+
+    <hr/>
+
+
+    <!-- Book Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Year Published</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+    <tbody id="bookTable"></tbody>
+    </table>
+
+
+    <script src="app.js"></script>
+</body>
+</html>
