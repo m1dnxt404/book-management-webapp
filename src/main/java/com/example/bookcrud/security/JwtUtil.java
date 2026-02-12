@@ -10,7 +10,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "mysecretkey";
+    private final String SECRET = "my-super-secret-key-that-is-at-least-32-bytes!";
 
 
     public String generateToken(String username) {

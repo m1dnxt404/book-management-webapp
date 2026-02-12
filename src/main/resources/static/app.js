@@ -1,156 +1,252 @@
-const API_URL = "http://localhost:8080/api/books";
+const API_URL = "/api/books";
+const TOKEN_KEY = "jwtToken";
 
-const tableBody = document.getElementById("bookTable");
-const form = document.getElementById("bookForm");
-
-const bookIdField = document.getElementById("bookId");
-const titleField = document.getElementById("title");
-const authorField = document.getElementById("author");
-const yearField = document.getElementById("yearPublished");
-
-const TOKEN_KEY = 'jwtToken';
+let allBooks = [];
+let editingId = null;
 
 // =====================
-// LOGIN FUNCTION TO ADD TOKEN TO REQUESTS
+// AUTHENTICATED FETCH
 // =====================
 function secureFetch(url, options = {}) {
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) {
-        alert("Please login first");
-        return Promise.reject();
+        showLoginPage();
+        return Promise.reject("Not authenticated");
     }
 
     options.headers = {
         ...options.headers,
-        'Authorization': 'Bearer ' + token,
-        'Content-Type': 'application/json'
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
     };
 
-    return fetch(url, options);
-
+    return fetch(url, options).then(res => {
+        if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem(TOKEN_KEY);
+            showLoginPage();
+            return Promise.reject("Session expired");
+        }
+        return res;
+    });
 }
 
 // =====================
-// LOGIN FORM HANDLING
+// PAGE SWITCHING
 // =====================
-loginForm.addEventListener('submit', e => {
-    e.preventDefault();
+function showDashboard() {
+    document.getElementById("loginPage").classList.remove("active");
+    document.getElementById("dashboardPage").classList.add("active");
+    loadAllBooks();
+}
 
-    fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            username: username.value,
-            password: password.value
+function showLoginPage() {
+    document.getElementById("dashboardPage").classList.remove("active");
+    document.getElementById("loginPage").classList.add("active");
+}
+
+// =====================
+// LOGIN
+// =====================
+document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const errorDiv = document.getElementById("loginError");
+
+    fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("Invalid credentials");
+            return res.text();
         })
-    })
-    .then(res => res.text())
-    .then(token => {
-        localStorage.setItem(TOKEN_KEY, token);
-        alert("Login successful");
-        loadBooks();
-    })
-    .catch(() => alert("Login failed"));
+        .then(token => {
+            errorDiv.textContent = "";
+            localStorage.setItem(TOKEN_KEY, token);
+            showDashboard();
+        })
+        .catch(() => {
+            errorDiv.textContent = "Invalid username or password";
+        });
 });
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+function logout() {
+    localStorage.removeItem(TOKEN_KEY);
+    document.getElementById("loginForm").reset();
+    document.getElementById("loginError").textContent = "";
+    showLoginPage();
+}
 
 // =====================
-// FETCH ALL BOOKS
+// LOAD ALL BOOKS
 // =====================
-window.onload = loadBooks;
-
-
-function loadBooks() {
+function loadAllBooks() {
     secureFetch(API_URL)
         .then(res => res.json())
         .then(data => {
-            table.innerHTML = '';
-            data.forEach(book => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${book.id}</td>
-                    <td>${book.title}</td>
-                    <td>${book.author}</td>
-                    <td>${book.yearPublished}</td>
-                    <td>
-                        <button onclick="editBook(${book.id})">✏ Edit</button>
-                        <button onclick="deleteBook(${book.id})">❌ Delete</button>
-                    </td>
-                `;
-                table.appendChild(row);
-            });
-        });
+            allBooks = data;
+            displayBooks(allBooks);
+        })
+        .catch(() => {});
 }
 
+// =====================
+// SEARCH (client-side filter)
+// =====================
+function searchBooks() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const filtered = allBooks.filter(book =>
+        book.title.toLowerCase().includes(query) ||
+        book.author.toLowerCase().includes(query)
+    );
+    displayBooks(filtered);
+}
+
+// =====================
+// DISPLAY BOOKS AS CARDS
+// =====================
+function displayBooks(books) {
+    const container = document.getElementById("booksContainer");
+
+    if (books.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <h3>No books found</h3>
+                <p>Start by adding your first book above</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="books-grid">
+            ${books.map(book => `
+                <div class="book-card">
+                    <h3>${book.title}</h3>
+                    <p><strong>Author:</strong> ${book.author}</p>
+                    <p><strong>Year:</strong> ${book.yearPublished}</p>
+                    <p style="color: #999; font-size: 12px;">ID: ${book.id}</p>
+                    <div class="actions">
+                        <button class="btn-edit" onclick="editBook(${book.id})">Edit</button>
+                        <button class="btn-delete" onclick="deleteBook(${book.id})">Delete</button>
+                    </div>
+                </div>
+            `).join("")}
+        </div>
+    `;
+}
 
 // =====================
 // CREATE / UPDATE
 // =====================
-form.addEventListener('submit', e => {
+document.getElementById("bookForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
-
-    const id = bookIdField.value;
+    const id = document.getElementById("bookId").value;
     const book = {
-        title: titleField.value,
-        author: authorField.value,
-        yearPublished: parseInt(yearField.value)
+        title: document.getElementById("title").value,
+        author: document.getElementById("author").value,
+        yearPublished: parseInt(document.getElementById("yearPublished").value)
     };
 
     if (id) {
-        // UPDATE
-        fetch(`${API_URL}/${id}`, {
+        secureFetch(`${API_URL}/${id}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(book)
-        }).then(() => {
-            resetForm();
-            fetchBooks();
-        });
+        })
+            .then(() => {
+                showMessage("Book updated successfully!", "success");
+                cancelEdit();
+                loadAllBooks();
+            })
+            .catch(() => {});
     } else {
-        // CREATE
-        fetch(API_URL, {
+        secureFetch(API_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(book)
-        }).then(() => {
-            resetForm();
-            fetchBooks();
-        });
+        })
+            .then(() => {
+                showMessage("Book added successfully!", "success");
+                document.getElementById("bookForm").reset();
+                loadAllBooks();
+            })
+            .catch(() => {});
     }
 });
-
 
 // =====================
 // EDIT BOOK
 // =====================
 function editBook(id) {
-    secureFetch(`${API_URL}/${id}`)
-        .then(res => res.json())
-        .then(book => {
-            bookIdField.value = book.id;
-            titleField.value = book.title;
-            authorField.value = book.author;
-            yearField.value = book.yearPublished;
-        });
+    const book = allBooks.find(b => b.id === id);
+    if (book) {
+        editingId = id;
+        document.getElementById("bookId").value = id;
+        document.getElementById("title").value = book.title;
+        document.getElementById("author").value = book.author;
+        document.getElementById("yearPublished").value = book.yearPublished;
+        document.getElementById("formTitle").textContent = "Edit Book";
+        document.getElementById("submitBtn").textContent = "Update Book";
+        document.getElementById("cancelBtn").style.display = "inline-block";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 }
 
-
 // =====================
-// DELETE BOOK WITH CONFIRMATION
+// DELETE BOOK
 // =====================
 function deleteBook(id) {
-    if (confirm('Are you sure you want to delete this book?')) {
-        secureFetch(`${API_URL}/${id}`, { method: 'DELETE' })
-        .then(() => loadBooks());
+    if (confirm("Are you sure you want to delete this book?")) {
+        secureFetch(`${API_URL}/${id}`, { method: "DELETE" })
+            .then(() => {
+                showMessage("Book deleted successfully!", "success");
+                loadAllBooks();
+            })
+            .catch(() => {});
     }
+}
 
 // =====================
-// RESET FORM
+// CANCEL EDIT / RESET FORM
 // =====================
-function resetForm() {
-    bookIdField.value = "";
-    form.reset();
+function cancelEdit() {
+    editingId = null;
+    document.getElementById("bookId").value = "";
+    document.getElementById("bookForm").reset();
+    document.getElementById("formTitle").textContent = "Add New Book";
+    document.getElementById("submitBtn").textContent = "Add Book";
+    document.getElementById("cancelBtn").style.display = "none";
 }
+
+// =====================
+// STATUS MESSAGE
+// =====================
+function showMessage(message, type) {
+    const messageDiv = document.getElementById("formMessage");
+    messageDiv.textContent = message;
+    messageDiv.className = type;
+    setTimeout(() => {
+        messageDiv.textContent = "";
+        messageDiv.className = "";
+    }, 3000);
 }
+
+// =====================
+// SEARCH ON ENTER KEY
+// =====================
+document.getElementById("searchInput").addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+        searchBooks();
+    }
+});
+
+// =====================
+// ON PAGE LOAD - auto-login if token exists
+// =====================
+window.onload = function () {
+    if (localStorage.getItem(TOKEN_KEY)) {
+        showDashboard();
+    }
+};

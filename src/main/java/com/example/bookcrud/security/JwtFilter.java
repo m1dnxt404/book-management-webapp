@@ -11,6 +11,9 @@ import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class JwtFilter extends OncePerRequestFilter {
 
     // Autowire the JwtUtil bean
