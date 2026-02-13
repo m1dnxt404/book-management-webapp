@@ -80,6 +80,76 @@ function logout() {
 }
 
 // =====================
+// FORM TOGGLE (Login / Register)
+// =====================
+function showLoginForm() {
+    document.getElementById("loginForm").style.display = "block";
+    document.getElementById("registerForm").style.display = "none";
+    document.getElementById("showLoginBtn").classList.add("toggle-active");
+    document.getElementById("showRegisterBtn").classList.remove("toggle-active");
+    document.getElementById("registerMessage").textContent = "";
+    document.getElementById("loginError").textContent = "";
+}
+
+function showRegisterForm() {
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("registerForm").style.display = "block";
+    document.getElementById("showRegisterBtn").classList.add("toggle-active");
+    document.getElementById("showLoginBtn").classList.remove("toggle-active");
+    document.getElementById("registerMessage").textContent = "";
+    document.getElementById("loginError").textContent = "";
+}
+
+// =====================
+// REGISTER
+// =====================
+document.getElementById("registerForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const username = document.getElementById("regUsername").value;
+    const password = document.getElementById("regPassword").value;
+    const confirmPassword = document.getElementById("regConfirmPassword").value;
+    const messageDiv = document.getElementById("registerMessage");
+
+    if (password !== confirmPassword) {
+        messageDiv.textContent = "Passwords do not match";
+        messageDiv.className = "error";
+        return;
+    }
+
+    if (username.length < 3) {
+        messageDiv.textContent = "Username must be at least 3 characters";
+        messageDiv.className = "error";
+        return;
+    }
+
+    if (password.length < 4) {
+        messageDiv.textContent = "Password must be at least 4 characters";
+        messageDiv.className = "error";
+        return;
+    }
+
+    fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    })
+        .then(res => {
+            if (!res.ok) return res.text().then(msg => { throw new Error(msg); });
+            return res.text();
+        })
+        .then(() => {
+            messageDiv.textContent = "Registration successful! You can now log in.";
+            messageDiv.className = "success";
+            document.getElementById("registerForm").reset();
+            setTimeout(() => showLoginForm(), 2000);
+        })
+        .catch(err => {
+            messageDiv.textContent = err.message || "Registration failed";
+            messageDiv.className = "error";
+        });
+});
+
+// =====================
 // LOAD ALL BOOKS
 // =====================
 function loadAllBooks() {

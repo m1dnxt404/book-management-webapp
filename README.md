@@ -10,7 +10,7 @@ A **Spring Boot CRUD web application** with **JWT authentication** and a **front
 | ----------------- | ----------------------------- |
 | Java 25           | Programming language          |
 | Spring Boot 4.0.1 | Backend framework             |
-| Spring Security   | Authentication & authorization |
+| Spring Security   | Authentication & authorization|
 | JWT (JJWT)        | Token-based authentication    |
 | Spring Data JPA   | ORM / Database access         |
 | H2 Database       | In-memory database (dev)      |
@@ -32,7 +32,7 @@ A **Spring Boot CRUD web application** with **JWT authentication** and a **front
 
 ## Project Structure
 
-```
+```text
 bookcrud/
 ├── src/main/java/com/example/bookcrud/
 │   ├── BookcrudApplication.java
@@ -74,14 +74,14 @@ mvn spring-boot:run
 
 Wait until you see:
 
-```
+```cmd
 Tomcat started on port 8080 (http) with context path '/'
 Started BookcrudApplication
 ```
 
 Open in browser:
 
-```
+```text
 http://localhost:8080
 ```
 
@@ -208,17 +208,22 @@ When ready to use PostgreSQL:
 
 1. Install and start PostgreSQL
 2. Create the database:
+
    ```sql
    CREATE DATABASE bookdb;
    ```
+
 3. In `pom.xml`, uncomment the PostgreSQL dependency and comment out H2
+
 4. In `application.properties`, uncomment the PostgreSQL config and comment out H2:
+
    ```properties
    spring.datasource.url=jdbc:postgresql://localhost:5432/bookdb
    spring.datasource.username=postgres
    spring.datasource.password=password
    spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
    ```
+   
 5. Restart the application
 
 ---

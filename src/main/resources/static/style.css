@@ -230,8 +230,19 @@ button:active {
 
 .form-toggle {
     margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
 }
 
 .form-toggle button {
-    margin-right: 10px;
+    flex: 1;
+}
+
+.toggle-active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.form-toggle button:not(.toggle-active) {
+    background: #ccc;
+    color: #666;
 }
