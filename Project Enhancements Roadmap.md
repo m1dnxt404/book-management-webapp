@@ -4,42 +4,42 @@ This document outlines structured improvements that can transform the current Sp
 
 ---
 
-# 🔐 1. Security Enhancements
+## 🔐 1. Security Enhancements
 
-## Role-Based Access Control (RBAC)
+### Role-Based Access Control (RBAC)
 
 * ~~Introduce roles: `ADMIN`, `USER`~~ ✅ (roles exist in User entity, seeded on registration)
 * Restrict create/update/delete operations to ADMIN
 * Allow read-only access to USER
 * Implement method-level security using `@PreAuthorize`
 
-## Refresh Token Mechanism
+### Refresh Token Mechanism
 
 * Short-lived access tokens
 * Long-lived refresh tokens
 * Secure token renewal endpoint
 
-## Password Security ✅
+### Password Security ✅
 
 * ~~Use BCrypt hashing~~ ✅
 * ~~Prevent storage of plain-text passwords~~ ✅
 
-## Account Management Features
+### Account Management Features
 
 * Email verification
 * Password reset flow
 * Account lock after multiple failed attempts
 
-## Production CORS Configuration
+### Production CORS Configuration
 
 * Restrict allowed origins
 * Remove wildcard `@CrossOrigin`
 
 ---
 
-# ⚙️ 2. Backend Improvements
+## ⚙️ 2. Backend Improvements
 
-## Pagination ✅
+### Pagination ✅
 
 ```cmd
 GET /api/books?page=0&size=10
@@ -47,25 +47,25 @@ GET /api/books?page=0&size=10
 
 ~~Improves scalability and performance.~~ ✅ (Spring Data `Pageable` + frontend Previous/Next controls)
 
-## Sorting & Filtering
+### Sorting & Filtering
 
 ```cmd
 GET /api/books?sort=year,desc
 GET /api/books?author=Martin
 ```
 
-## Search Endpoint
+### Search Endpoint
 
 ```cmd
 GET /api/books/search?keyword=clean
 ```
 
-## DTO Architecture (Partial) ⏳
+### DTO Architecture (Partial) ⏳
 
 * ~~Separate Entity from Request/Response DTO~~ ✅ (LoginRequest, RegisterRequest exist)
 * Prevent exposing internal database structure (Book DTOs still needed)
 
-## Global Exception Handling
+### Global Exception Handling
 
 * Use `@ControllerAdvice`
 * Standardize error responses
@@ -87,27 +87,27 @@ Example:
 
 ---
 
-# 🧪 3. Testing Enhancements
+## 🧪 3. Testing Enhancements
 
-## Unit Tests
+### Unit Tests
 
 * Service layer testing
 * Mock repository with Mockito
 
-## Integration Tests
+### Integration Tests
 
 * Test REST endpoints using MockMvc
 
-## TestContainers
+### TestContainers
 
 * Run PostgreSQL container during tests
 * Ensure real database validation
 
 ---
 
-# ⚛️ 4. Frontend Improvements
+## ⚛️ 4. Frontend Improvements
 
-## React Router
+### React Router
 
 Add proper routes:
 
@@ -118,21 +118,21 @@ Add proper routes:
 /books/edit/:id
 ```
 
-## Protected Routes ✅
+### Protected Routes ✅
 
 * ~~Redirect to login if token missing~~ ✅
 
-## Role-Based UI
+### Role-Based UI
 
 * Hide delete/edit buttons for USER
 * Show admin controls for ADMIN
 
-## State Management
+### State Management
 
 * Use Context API
 * Or Redux for larger scale
 
-## UI Framework
+### UI Framework
 
 * TailwindCSS
 * Material UI
@@ -140,22 +140,22 @@ Add proper routes:
 
 ---
 
-# 🐳 5. DevOps & Deployment
+## 🐳 5. DevOps & Deployment
 
-## Dockerization
+### Dockerization
 
 * Backend container
 * PostgreSQL container
 * Frontend container
 * Docker Compose orchestration
 
-## CI/CD Pipeline
+### CI/CD Pipeline
 
 * GitHub Actions
 * Run tests on push
 * Auto-build and deploy
 
-## Cloud Deployment
+### Cloud Deployment
 
 * AWS
 * Azure
@@ -165,48 +165,48 @@ Add proper routes:
 
 ---
 
-# 📊 6. Advanced Architecture Enhancements
+## 📊 6. Advanced Architecture Enhancements
 
-## Swagger / OpenAPI
+### Swagger / OpenAPI
 
 * Auto-generated API documentation
 * Accessible at `/swagger-ui.html`
 
-## Caching
+### Caching
 
 * Redis integration
 * Cache frequently accessed books
 
-## Rate Limiting
+### Rate Limiting
 
 * Prevent API abuse
 
-## Audit Logging
+### Audit Logging
 
 * Track updates and deletions
 * Store user and timestamp
 
-## Soft Delete
+### Soft Delete
 
 * Add `is_deleted` flag instead of hard delete
 
 ---
 
-# 🏗 7. Enterprise-Level Upgrades
+## 🏗 7. Enterprise-Level Upgrades
 
-## Microservices Architecture
+### Microservices Architecture
 
 Split into:
 
 * Auth Service
 * Book Service
 
-## Message Queue
+### Message Queue
 
 * RabbitMQ
 * Kafka
 
-## Monitoring & Metrics
+### Monitoring & Metrics
 
 * Spring Boot Actuator
 * Prometheus
@@ -214,7 +214,7 @@ Split into:
 
 ---
 
-# 🚀 Recommended Upgrade Order
+### 🚀 Recommended Upgrade Order
 
 1. RBAC
 2. DTO + Global Exception Handling
@@ -226,7 +226,7 @@ Split into:
 
 ---
 
-# 🏆 Portfolio-Ready Target
+## 🏆 Production-Ready Target
 
 To elevate this project to a professional level, aim to include:
 
