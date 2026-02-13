@@ -34,6 +34,15 @@ public class BookController {
         return bookService.getBooks(page, size);
     }
 
+    // SEARCH
+    @GetMapping("/search")
+    public Page<Book> searchBooks(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return bookService.searchBooks(keyword, page, size);
+    }
+
     // READ ONE
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable Long id) {

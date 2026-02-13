@@ -6,6 +6,7 @@ let editingId = null;
 let currentPage = 0;
 let pageSize = 10;
 let totalPages = 0;
+let searchQuery = "";
 
 // =====================
 // AUTHENTICATED FETCH
@@ -156,7 +157,14 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
 // LOAD BOOKS (paginated)
 // =====================
 function loadAllBooks() {
-    secureFetch(`${API_URL}?page=${currentPage}&size=${pageSize}`)
+    let url;
+    if (searchQuery) {
+        url = `${API_URL}/search?keyword=${encodeURIComponent(searchQuery)}&page=${currentPage}&size=${pageSize}`;
+    } else {
+        url = `${API_URL}?page=${currentPage}&size=${pageSize}`;
+    }
+
+    secureFetch(url)
         .then(res => res.json())
         .then(data => {
             allBooks = data.content;
@@ -193,16 +201,19 @@ function goToPage(page) {
 }
 
 // =====================
-// SEARCH (client-side filter)
+// SEARCH (server-side)
 // =====================
 function searchBooks() {
-    const query = document.getElementById("searchInput").value.toLowerCase();
-    const filtered = allBooks.filter(book =>
-        book.title.toLowerCase().includes(query) ||
-        book.author.toLowerCase().includes(query)
-    );
-    displayBooks(filtered);
-    document.getElementById("paginationControls").innerHTML = "";
+    searchQuery = document.getElementById("searchInput").value.trim();
+    currentPage = 0;
+    loadAllBooks();
+}
+
+function clearSearch() {
+    searchQuery = "";
+    currentPage = 0;
+    document.getElementById("searchInput").value = "";
+    loadAllBooks();
 }
 
 // =====================

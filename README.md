@@ -131,13 +131,13 @@ A default admin user is seeded on startup. New users can register through the UI
 
 ### Protected (JWT required)
 
-| Method | Endpoint          | Description       |
-| ------ | ----------------- | ----------------- |
-| POST   | `/api/books`      | Create a new book |
-| GET    | `/api/books`      | Get all books     |
-| GET    | `/api/books/{id}` | Get book by ID    |
-| PUT    | `/api/books/{id}` | Update a book     |
-| DELETE | `/api/books/{id}` | Delete a book     |
+| Method | Endpoint          | Description                |
+| ------ | ----------------- | -------------------------- |
+| POST   | `/api/books`      | Create a new book          |
+| GET    | `/api/books`      | Get all books (paginated)  |
+| GET    | `/api/books/{id}` | Get book by ID             |
+| PUT    | `/api/books/{id}` | Update a book              |
+| DELETE | `/api/books/{id}` | Delete a book              |
 
 ---
 
@@ -163,11 +163,22 @@ Save the returned token. Use it in all subsequent requests as shown below.
 curl -X POST http://localhost:8080/api/books -H "Content-Type: application/json" -H "Authorization: Bearer YOUR_TOKEN" -d "{ \"title\": \"Clean Code\", \"author\": \"Robert Martin\", \"yearPublished\": 2008 }"
 ```
 
-### Step 4: Get all books
+### Step 4: Get all books (paginated)
 
 ```cmd
 curl http://localhost:8080/api/books -H "Authorization: Bearer YOUR_TOKEN"
 ```
+
+With pagination parameters:
+
+```cmd
+curl "http://localhost:8080/api/books?page=0&size=5" -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+| Parameter | Default | Description              |
+| --------- | ------- | ------------------------ |
+| `page`    | `0`     | Page number (zero-based) |
+| `size`    | `10`    | Items per page           |
 
 ### Step 5: Get a book by ID
 

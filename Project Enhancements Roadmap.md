@@ -39,13 +39,13 @@ This document outlines structured improvements that can transform the current Sp
 
 # ⚙️ 2. Backend Improvements
 
-## Pagination
+## Pagination ✅
 
 ```cmd
 GET /api/books?page=0&size=10
 ```
 
-Improves scalability and performance.
+~~Improves scalability and performance.~~ ✅ (Spring Data `Pageable` + frontend Previous/Next controls)
 
 ## Sorting & Filtering
 
@@ -218,7 +218,7 @@ Split into:
 
 1. RBAC
 2. DTO + Global Exception Handling
-3. Pagination + Search
+3. ~~Pagination~~ ✅ + Search
 4. Swagger
 5. Docker
 6. Unit & Integration Tests
@@ -233,7 +233,7 @@ To elevate this project to a professional level, aim to include:
 * ~~JWT~~ ✅ + Refresh Tokens
 * RBAC Authorization
 * ~~DTO Layer~~ ⏳ (partial — auth DTOs done, book DTOs needed)
-* Pagination & Search
+* ~~Pagination~~ ✅ & Search
 * Global Error Handling
 * Swagger Documentation
 * Dockerized Deployment

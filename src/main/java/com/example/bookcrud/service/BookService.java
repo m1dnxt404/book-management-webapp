@@ -35,6 +35,11 @@ public class BookService {
         return repository.findAll(PageRequest.of(page, size));
     }
 
+    // SEARCH (paginated)
+    public Page<Book> searchBooks(String keyword, int page, int size) {
+        return repository.search(keyword, PageRequest.of(page, size));
+    }
+
     // READ ONE
     public Optional<Book> getBookById(Long id) {
         return repository.findById(id);
