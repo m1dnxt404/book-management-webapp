@@ -3,6 +3,8 @@ package com.example.bookcrud.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.bookcrud.model.Book;
@@ -26,6 +28,11 @@ public class BookService {
     // READ ALL
     public List<Book> getAllBooks() {
         return repository.findAll();
+    }
+
+    // READ ALL (paginated)
+    public Page<Book> getBooks(int page, int size) {
+        return repository.findAll(PageRequest.of(page, size));
     }
 
     // READ ONE

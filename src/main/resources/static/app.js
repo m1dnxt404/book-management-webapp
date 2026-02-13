@@ -3,6 +3,9 @@ const TOKEN_KEY = "jwtToken";
 
 let allBooks = [];
 let editingId = null;
+let currentPage = 0;
+let pageSize = 10;
+let totalPages = 0;
 
 // =====================
 // AUTHENTICATED FETCH
@@ -150,16 +153,43 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
 });
 
 // =====================
-// LOAD ALL BOOKS
+// LOAD BOOKS (paginated)
 // =====================
 function loadAllBooks() {
-    secureFetch(API_URL)
+    secureFetch(`${API_URL}?page=${currentPage}&size=${pageSize}`)
         .then(res => res.json())
         .then(data => {
-            allBooks = data;
+            allBooks = data.content;
+            totalPages = data.totalPages;
+            currentPage = data.number;
             displayBooks(allBooks);
+            renderPagination();
         })
         .catch(() => {});
+}
+
+// =====================
+// PAGINATION CONTROLS
+// =====================
+function renderPagination() {
+    const container = document.getElementById("paginationControls");
+    if (totalPages <= 1) {
+        container.innerHTML = "";
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="pagination">
+            <button onclick="goToPage(${currentPage - 1})" ${currentPage === 0 ? "disabled" : ""}>Previous</button>
+            <span>Page ${currentPage + 1} of ${totalPages}</span>
+            <button onclick="goToPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? "disabled" : ""}>Next</button>
+        </div>
+    `;
+}
+
+function goToPage(page) {
+    currentPage = page;
+    loadAllBooks();
 }
 
 // =====================
@@ -172,6 +202,7 @@ function searchBooks() {
         book.author.toLowerCase().includes(query)
     );
     displayBooks(filtered);
+    document.getElementById("paginationControls").innerHTML = "";
 }
 
 // =====================
