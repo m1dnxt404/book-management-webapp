@@ -14,8 +14,8 @@ A **Spring Boot CRUD web application** with **JWT authentication**, **user regis
 | BCrypt            | Password hashing              |
 | JWT (JJWT)        | Token-based authentication    |
 | Spring Data JPA   | ORM / Database access         |
-| H2 Database       | In-memory database (dev)      |
-| PostgreSQL        | Production database (ready)   |
+| H2 Database       | In-memory database (testing)  |
+| PostgreSQL        | Persistent database (prod)    |
 | Maven             | Build & dependency management |
 | HTML / CSS / JS   | Frontend UI                   |
 | VS Code           | Code editor                   |
@@ -195,7 +195,7 @@ The H2 in-memory database console is available for development.
 
 Open in browser:
 
-```
+```text
 http://localhost:8080/h2-console
 ```
 
@@ -203,7 +203,7 @@ http://localhost:8080/h2-console
 
 | Field    | Value              |
 | -------- | ------------------ |
-| JDBC URL | `jdbc:h2:mem:bookdb` |
+| JDBC URL |`jdbc:h2:mem:bookdb`|
 | User     | `sa`               |
 | Password | *(blank)*          |
 
@@ -211,6 +211,7 @@ http://localhost:8080/h2-console
 
 ```sql
 SELECT * FROM BOOK;
+SELECT * FROM USERS;
 ```
 
 ```sql
@@ -222,9 +223,9 @@ VALUES (10, 'Inserted via H2', 'Console User', 2022);
 
 ---
 
-## Switching to PostgreSQL
+## Switching to PostgreSQL (Production)
 
-When ready to use PostgreSQL:
+When ready to use PostgreSQL for persistent storage:
 
 1. Install and start PostgreSQL
 2. Create the database:
@@ -243,7 +244,7 @@ When ready to use PostgreSQL:
    spring.datasource.password=password
    spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
    ```
-   
+
 5. Restart the application
 
 ---
@@ -251,7 +252,7 @@ When ready to use PostgreSQL:
 ## Important Notes
 
 * JWT tokens expire after 1 hour
-* H2 data is lost when the app restarts (use PostgreSQL for persistence)
+* H2 is used for testing (data resets on restart); switch to PostgreSQL for production
 * Passwords are hashed with BCrypt (never stored in plain text)
 * A default admin user is seeded on startup
 * This setup is **for learning only**, not production
@@ -261,9 +262,8 @@ When ready to use PostgreSQL:
 ## Next Planned Enhancements
 
 1. Role-based access control (admin vs user permissions)
-2. PostgreSQL database integration
-3. Unit & integration tests
-4. Dockerize app
+2. Unit & integration tests
+3. Dockerize app
 
 ---
 
