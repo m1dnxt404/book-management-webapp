@@ -27,14 +27,15 @@ A **Spring Boot CRUD web application** with **JWT authentication**, **user regis
 * VS Code (or any IDE)
   * Maven extension pack
   * Spring Boot extension pack
-* PostgreSQL *(only when switching from H2)*
+* Docker & Docker Compose *(for containerized deployment)*
+* PostgreSQL *(only when switching from H2 locally)*
 
 ---
 
 ## Project Structure
 
 ```text
-bookcrud/
+book-management-webapp/
 ├── src/main/java/com/example/bookcrud/
 │   ├── BookcrudApplication.java
 │   ├── controller/
@@ -61,7 +62,11 @@ bookcrud/
 │   │   ├── index.html                 # Frontend UI
 │   │   ├── style.css
 │   │   └── app.js
-│   └── application.properties
+│   ├── application.properties         # Default config (H2, dev)
+│   └── application-docker.properties # Docker profile config (PostgreSQL)
+├── Dockerfile                         # Multi-stage build (JDK build → JRE run)
+├── docker-compose.yml                 # App + PostgreSQL containers
+├── .dockerignore
 ├── pom.xml
 └── README.md
 ```
@@ -70,24 +75,50 @@ bookcrud/
 
 ## Running the Application
 
-From the project root directory:
+### Option 1: Docker (recommended)
 
-```cmd
+Starts the app and a PostgreSQL database together. Data persists across restarts.
+
+```bash
+docker-compose up --build
+```
+
+Wait until you see:
+
+```log
+Started BookcrudApplication
+```
+
+Open in browser: `http://localhost:8080`
+
+To stop and remove containers:
+
+```bash
+docker-compose down
+```
+
+To also remove the database volume (wipes all data):
+
+```bash
+docker-compose down -v
+```
+
+### Option 2: Local (H2 in-memory)
+
+Requires Java 25 and Maven. Data is lost on restart.
+
+```bash
 mvn spring-boot:run
 ```
 
 Wait until you see:
 
-```cmd
+```log
 Tomcat started on port 8080 (http) with context path '/'
 Started BookcrudApplication
 ```
 
-Open in browser:
-
-```text
-http://localhost:8080
-```
+Open in browser: `http://localhost:8080`
 
 ---
 
@@ -202,7 +233,7 @@ curl -X DELETE http://localhost:8080/api/books/1 -H "Authorization: Bearer YOUR_
 
 ## H2 Database Console
 
-The H2 in-memory database console is available for development.
+The H2 in-memory database console is available in local dev mode only (`mvn spring-boot:run`). It is disabled when running via Docker.
 
 Open in browser:
 
@@ -234,38 +265,42 @@ VALUES (10, 'Inserted via H2', 'Console User', 2022);
 
 ---
 
-## Switching to PostgreSQL (Production)
+## Docker Setup
 
-When ready to use PostgreSQL for persistent storage:
+The app is fully containerized using Docker Compose. The Docker setup uses **PostgreSQL** with a named volume (`BookCRUDpostgres_data`) so data persists across restarts.
 
-1. Install and start PostgreSQL
-2. Create the database:
+### Services
 
-   ```sql
-   CREATE DATABASE bookdb;
-   ```
+| Service    | Image              | Port | Description             |
+| ---------- | ------------------ | ---- | ----------------------- |
+| `app`      | Built from source  | 8080 | Spring Boot application |
+| `postgres` | postgres:16-alpine | 5432 | PostgreSQL database     |
 
-3. In `pom.xml`, uncomment the PostgreSQL dependency and comment out H2
+### How It Works
 
-4. In `application.properties`, uncomment the PostgreSQL config and comment out H2:
+* `Dockerfile` — Multi-stage build: Maven + JDK 25 builds the JAR; JRE 25 runs it (smaller final image)
+* `docker-compose.yml` — Orchestrates both containers; app waits for PostgreSQL health check before starting
+* `application-docker.properties` — Activated via `SPRING_PROFILES_ACTIVE=docker`; switches to PostgreSQL and disables the H2 console
 
-   ```properties
-   spring.datasource.url=jdbc:postgresql://localhost:5432/bookdb
-   spring.datasource.username=postgres
-   spring.datasource.password=password
-   spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
-   ```
+### Common Commands
 
-5. Restart the application
+| Command                        | Description                              |
+| ------------------------------ | ---------------------------------------- |
+| `docker-compose up --build`    | Build and start both containers          |
+| `docker-compose up`            | Start without rebuilding                 |
+| `docker-compose down`          | Stop and remove containers               |
+| `docker-compose down -v`       | Stop containers and delete the DB volume |
+| `docker-compose logs -f app`   | Stream app container logs                |
 
 ---
 
 ## Important Notes
 
 * JWT tokens expire after 1 hour
-* H2 is used for testing (data resets on restart); switch to PostgreSQL for production
+* H2 is used for local dev (data resets on restart); Docker uses PostgreSQL with persistent storage
 * Passwords are hashed with BCrypt (never stored in plain text)
-* A default admin user is seeded on startup
+* A default admin user is seeded on startup (`admin` / `password`)
+* The H2 console is disabled when running via Docker
 * This setup is **for learning only**, not production
 
 ---
@@ -274,7 +309,7 @@ When ready to use PostgreSQL for persistent storage:
 
 1. Role-based access control (admin vs user permissions)
 2. Unit & integration tests
-3. Dockerize app
+3. Cloud deployment (AWS / Render / Azure)
 
 ---
 
