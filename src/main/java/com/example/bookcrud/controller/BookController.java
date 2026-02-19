@@ -3,6 +3,7 @@ package com.example.bookcrud.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.bookcrud.model.Book;
 import com.example.bookcrud.service.BookService;
@@ -19,7 +20,8 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    // CREATE
+    // CREATE — ADMIN only
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
         Book saved = bookService.createBook(book);
@@ -51,7 +53,8 @@ public class BookController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // UPDATE
+    // UPDATE — ADMIN only
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(
             @PathVariable Long id,
@@ -62,7 +65,8 @@ public class BookController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // DELETE
+    // DELETE — ADMIN only
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         if (bookService.deleteBook(id)) {

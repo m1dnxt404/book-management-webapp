@@ -13,9 +13,10 @@ public class JwtUtil {
     private final String SECRET = "my-super-secret-key-that-is-at-least-32-bytes!";
 
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         return Jwts.builder()
             .setSubject(username)
+            .claim("role", role)
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + 3600000))
             .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()), SignatureAlgorithm.HS256)
@@ -29,6 +30,15 @@ public class JwtUtil {
             .parseClaimsJws(token)
             .getBody()
             .getSubject();
-    }   
-    
+    }
+
+    public String extractRole(String token) {
+        return Jwts.parserBuilder()
+            .setSigningKey(SECRET.getBytes())
+            .build()
+            .parseClaimsJws(token)
+            .getBody()
+            .get("role", String.class);
+    }
+
 }

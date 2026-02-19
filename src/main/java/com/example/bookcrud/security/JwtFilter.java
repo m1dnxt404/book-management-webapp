@@ -2,6 +2,7 @@ package com.example.bookcrud.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,11 +17,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    // Autowire the JwtUtil bean
     @Autowired
     private JwtUtil jwtUtil;
 
-    // override doFilterInternal method
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -32,17 +31,14 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             String username = jwtUtil.extractUsername(token);
+            String role = jwtUtil.extractRole(token);
 
-             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(username, null, List.of());
-            
+            SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(username, null, List.of(authority));
+
             SecurityContextHolder.getContext().setAuthentication(auth);
-
-            // Here you can set the authentication in the context if needed
         }
         filterChain.doFilter(request, response);
     }
-
-
-    
 }
