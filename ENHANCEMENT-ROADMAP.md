@@ -1,17 +1,17 @@
-# 📚 Book CRUD Application – Enhancement Roadmap
+# Book CRUD Application – Enhancement Roadmap
 
-This document outlines structured improvements that can transform the current Spring Boot + JWT + PostgreSQL + React project into a production-ready, portfolio-level application.
+This document outlines structured improvements that can transform the current Spring Boot + JWT + PostgreSQL project into a production-ready, portfolio-level application.
 
 ---
 
-## 🔐 1. Security Enhancements
+## 1. Security Enhancements
 
-### Role-Based Access Control (RBAC)
+### Role-Based Access Control (RBAC) ✅
 
-* ~~Introduce roles: `ADMIN`, `USER`~~ ✅ (roles exist in User entity, seeded on registration)
-* Restrict create/update/delete operations to ADMIN
-* Allow read-only access to USER
-* Implement method-level security using `@PreAuthorize`
+* ~~Introduce roles: `ADMIN`, `USER`~~ ✅
+* ~~Restrict create/update/delete operations to ADMIN~~ ✅
+* ~~Allow read-only access to USER~~ ✅
+* ~~Implement method-level security using `@PreAuthorize`~~ ✅
 
 ### Refresh Token Mechanism
 
@@ -37,27 +37,21 @@ This document outlines structured improvements that can transform the current Sp
 
 ---
 
-## ⚙️ 2. Backend Improvements
+## 2. Backend Improvements
 
 ### Pagination ✅
 
-```cmd
-GET /api/books?page=0&size=10
-```
-
 ~~Improves scalability and performance.~~ ✅ (Spring Data `Pageable` + frontend Previous/Next controls)
+
+### Search Endpoint ✅
+
+~~Full-text search across title, author, and year.~~ ✅ (`/api/books/search?keyword=X`)
 
 ### Sorting & Filtering
 
-```cmd
+```text
 GET /api/books?sort=year,desc
 GET /api/books?author=Martin
-```
-
-### Search Endpoint
-
-```cmd
-GET /api/books/search?keyword=clean
 ```
 
 ### DTO Architecture (Partial) ⏳
@@ -80,14 +74,14 @@ Example:
 }
 ```
 
-## Logging
+### Logging
 
 * Use SLF4J + Logback
 * Structured logging for production
 
 ---
 
-## 🧪 3. Testing Enhancements
+## 3. Testing Enhancements
 
 ### Unit Tests
 
@@ -105,32 +99,16 @@ Example:
 
 ---
 
-## ⚛️ 4. Frontend Improvements
+## 4. Frontend Improvements
 
-### React Router
+### Role-Based UI
 
-Add proper routes:
-
-```cmd
-/login
-/books
-/books/new
-/books/edit/:id
-```
+* Hide add/edit/delete controls for USER role
+* Show full controls for ADMIN role
 
 ### Protected Routes ✅
 
 * ~~Redirect to login if token missing~~ ✅
-
-### Role-Based UI
-
-* Hide delete/edit buttons for USER
-* Show admin controls for ADMIN
-
-### State Management
-
-* Use Context API
-* Or Redux for larger scale
 
 ### UI Framework
 
@@ -140,14 +118,13 @@ Add proper routes:
 
 ---
 
-## 🐳 5. DevOps & Deployment
+## 5. DevOps & Deployment
 
-### Dockerization
+### Dockerization ✅
 
-* Backend container
-* PostgreSQL container
-* Frontend container
-* Docker Compose orchestration
+* ~~Backend container~~ ✅
+* ~~PostgreSQL container~~ ✅
+* ~~Docker Compose orchestration~~ ✅ (with health check, named volume, Spring profile)
 
 ### CI/CD Pipeline
 
@@ -165,7 +142,7 @@ Add proper routes:
 
 ---
 
-## 📊 6. Advanced Architecture Enhancements
+## 6. Advanced Architecture Enhancements
 
 ### Swagger / OpenAPI
 
@@ -192,7 +169,7 @@ Add proper routes:
 
 ---
 
-## 🏗 7. Enterprise-Level Upgrades
+## 7. Enterprise-Level Upgrades
 
 ### Microservices Architecture
 
@@ -214,29 +191,28 @@ Split into:
 
 ---
 
-### 🚀 Recommended Upgrade Order
+## Recommended Upgrade Order
 
-1. RBAC
-2. DTO + Global Exception Handling
-3. ~~Pagination~~ ✅ + Search
+1. ~~RBAC~~ ✅
+2. ~~Docker~~ ✅
+3. DTO + Global Exception Handling
 4. Swagger
-5. Docker
-6. Unit & Integration Tests
-7. Cloud Deployment
+5. Unit & Integration Tests
+6. Cloud Deployment
 
 ---
 
-## 🏆 Production-Ready Target
+## Production-Ready Target
 
 To elevate this project to a professional level, aim to include:
 
 * ~~JWT~~ ✅ + Refresh Tokens
-* RBAC Authorization
+* ~~RBAC Authorization~~ ✅
 * ~~DTO Layer~~ ⏳ (partial — auth DTOs done, book DTOs needed)
-* ~~Pagination~~ ✅ & Search
+* ~~Pagination~~ ✅ & ~~Search~~ ✅
 * Global Error Handling
 * Swagger Documentation
-* Dockerized Deployment
+* ~~Dockerized Deployment~~ ✅
 * Automated Tests
 * Live Deployment
 

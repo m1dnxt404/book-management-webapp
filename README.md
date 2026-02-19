@@ -124,9 +124,16 @@ Open in browser: `http://localhost:8080`
 
 ## Authentication
 
-The app uses **JWT (JSON Web Token)** authentication with **BCrypt password hashing**. All `/api/books` endpoints require a valid token.
+The app uses **JWT (JSON Web Token)** authentication with **BCrypt password hashing** and **role-based access control (RBAC)**.
 
-A default admin user is seeded on startup. New users can register through the UI or API.
+Roles are embedded in the JWT on login and enforced via `@PreAuthorize` on each endpoint. A default admin user is seeded on startup. New users registered via the API receive the `USER` role.
+
+### Roles
+
+| Role    | Permissions                              |
+| ------- | ---------------------------------------- |
+| `ADMIN` | Full CRUD — create, read, update, delete |
+| `USER`  | Read-only — get and search books         |
 
 ### Default Admin Credentials
 
@@ -160,15 +167,21 @@ A default admin user is seeded on startup. New users can register through the UI
 | POST   | `/api/auth/login`    | Login, returns JWT      |
 | POST   | `/api/auth/register` | Register a new user     |
 
-### Protected (JWT required)
+### Protected — ADMIN only (JWT required, role: ADMIN)
 
-| Method | Endpoint          | Description                |
-| ------ | ----------------- | -------------------------- |
-| POST   | `/api/books`      | Create a new book          |
-| GET    | `/api/books`      | Get all books (paginated)  |
-| GET    | `/api/books/{id}` | Get book by ID             |
-| PUT    | `/api/books/{id}` | Update a book              |
-| DELETE | `/api/books/{id}` | Delete a book              |
+| Method | Endpoint          | Description       |
+| ------ | ----------------- | ----------------- |
+| POST   | `/api/books`      | Create a new book |
+| PUT    | `/api/books/{id}` | Update a book     |
+| DELETE | `/api/books/{id}` | Delete a book     |
+
+### Protected — any authenticated user (JWT required)
+
+| Method | Endpoint                               | Description               |
+| ------ | -------------------------------------- | ------------------------- |
+| GET    | `/api/books`                           | Get all books (paginated) |
+| GET    | `/api/books/{id}`                      | Get book by ID            |
+| GET    | `/api/books/search?keyword=X&page=0`   | Search books              |
 
 ---
 
@@ -307,9 +320,8 @@ The app is fully containerized using Docker Compose. The Docker setup uses **Pos
 
 ## Next Planned Enhancements
 
-1. Role-based access control (admin vs user permissions)
-2. Unit & integration tests
-3. Cloud deployment (AWS / Render / Azure)
+1. Unit & integration tests
+2. Cloud deployment (AWS / Render / Azure)
 
 ---
 
