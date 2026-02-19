@@ -21,8 +21,8 @@ public class BookController {
     }
 
     // CREATE — ADMIN only
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
         Book saved = bookService.createBook(book);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
@@ -54,8 +54,8 @@ public class BookController {
     }
 
     // UPDATE — ADMIN only
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Book> updateBook(
             @PathVariable Long id,
             @RequestBody Book book) {
@@ -66,8 +66,8 @@ public class BookController {
     }
 
     // DELETE — ADMIN only
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         if (bookService.deleteBook(id)) {
             return ResponseEntity.noContent().build();
