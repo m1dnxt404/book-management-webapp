@@ -64,14 +64,12 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- PostgreSQL for production (uncomment when ready) -->
-		<!--
+		<!-- PostgreSQL for production and Docker -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		-->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
