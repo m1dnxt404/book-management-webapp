@@ -13,11 +13,11 @@ This document outlines structured improvements that can transform the current Sp
 * ~~Allow read-only access to USER~~ ✅
 * ~~Implement method-level security using `@PreAuthorize`~~ ✅
 
-### Refresh Token Mechanism
+### Refresh Token Mechanism ✅
 
-* Short-lived access tokens
-* Long-lived refresh tokens
-* Secure token renewal endpoint
+* ~~Short-lived access tokens~~ ✅ (15 minutes)
+* ~~Long-lived refresh tokens~~ ✅ (7 days, UUID, stored in `refresh_tokens` table)
+* ~~Secure token renewal endpoint~~ ✅ (`POST /api/auth/refresh` with token rotation, `POST /api/auth/logout`)
 
 ### Password Security ✅
 
@@ -125,6 +125,7 @@ Example:
 * ~~Backend container~~ ✅
 * ~~PostgreSQL container~~ ✅
 * ~~Docker Compose orchestration~~ ✅ (with health check, named volume, Spring profile)
+* ~~pgAdmin container~~ ✅ (accessible at port 5050)
 
 ### CI/CD Pipeline
 
@@ -195,10 +196,11 @@ Split into:
 
 1. ~~RBAC~~ ✅
 2. ~~Docker~~ ✅
-3. DTO + Global Exception Handling
-4. Swagger
-5. Unit & Integration Tests
-6. Cloud Deployment
+3. ~~Refresh Token Mechanism~~ ✅
+4. DTO + Global Exception Handling
+5. Swagger
+6. Unit & Integration Tests
+7. Cloud Deployment
 
 ---
 
@@ -206,7 +208,7 @@ Split into:
 
 To elevate this project to a professional level, aim to include:
 
-* ~~JWT~~ ✅ + Refresh Tokens
+* ~~JWT~~ ✅ + ~~Refresh Tokens~~ ✅
 * ~~RBAC Authorization~~ ✅
 * ~~DTO Layer~~ ⏳ (partial — auth DTOs done, book DTOs needed)
 * ~~Pagination~~ ✅ & ~~Search~~ ✅
