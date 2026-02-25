@@ -42,13 +42,17 @@ book-management-webapp/
 │   │   ├── AuthController.java        # Login & registration endpoints
 │   │   └── BookController.java        # Book CRUD endpoints
 │   ├── dto/
+│   │   ├── AuthResponse.java          # { accessToken, refreshToken }
 │   │   ├── LoginRequest.java
+│   │   ├── RefreshRequest.java        # { refreshToken }
 │   │   └── RegisterRequest.java
 │   ├── model/
 │   │   ├── Book.java                  # Book entity
+│   │   ├── RefreshToken.java          # Refresh token entity (DB-backed)
 │   │   └── User.java                  # User entity
 │   ├── repository/
 │   │   ├── BookRepository.java
+│   │   ├── RefreshTokenRepository.java
 │   │   └── UserRepository.java
 │   ├── security/
 │   │   ├── JwtFilter.java             # JWT authentication filter
@@ -56,6 +60,7 @@ book-management-webapp/
 │   │   └── SecurityConfig.java        # Spring Security configuration
 │   └── service/
 │       ├── BookService.java
+│       ├── RefreshTokenService.java   # Token create/validate/delete
 │       └── UserService.java          # Registration & authentication
 ├── src/main/resources/
 │   ├── static/
@@ -124,9 +129,11 @@ Open in browser: `http://localhost:8080`
 
 ## Authentication
 
-The app uses **JWT (JSON Web Token)** authentication with **BCrypt password hashing** and **role-based access control (RBAC)**.
+The app uses **JWT authentication**, **BCrypt password hashing**, **role-based access control (RBAC)**, and a **refresh token mechanism**.
 
-Roles are embedded in the JWT on login and enforced via `@PreAuthorize` on each endpoint. A default admin user is seeded on startup. New users registered via the API receive the `USER` role.
+On login, two tokens are issued: a short-lived access token (15 minutes) and a long-lived refresh token (7 days) stored in the database. When the access token expires, the client calls `/api/auth/refresh` to silently get a new pair — without re-entering credentials. Logout deletes the refresh token from the database, truly ending the session.
+
+Roles are embedded in the access token and enforced via `@PreAuthorize` on each endpoint. A default admin user is seeded on startup. New users registered via the API receive the `USER` role.
 
 ### Roles
 
@@ -162,10 +169,12 @@ Roles are embedded in the JWT on login and enforced via `@PreAuthorize` on each 
 
 ### Public (no auth required)
 
-| Method | Endpoint             | Description             |
-| ------ | -------------------- | ----------------------- |
-| POST   | `/api/auth/login`    | Login, returns JWT      |
-| POST   | `/api/auth/register` | Register a new user     |
+| Method | Endpoint              | Description                                      |
+| ------ | --------------------- | ------------------------------------------------ |
+| POST   | `/api/auth/login`     | Login — returns `{ accessToken, refreshToken }`  |
+| POST   | `/api/auth/register`  | Register a new user (USER role)                  |
+| POST   | `/api/auth/refresh`   | Exchange refresh token for a new token pair      |
+| POST   | `/api/auth/logout`    | Invalidate the refresh token                     |
 
 ### Protected — ADMIN only (JWT required, role: ADMIN)
 
@@ -193,13 +202,22 @@ Roles are embedded in the JWT on login and enforced via `@PreAuthorize` on each 
 curl -X POST http://localhost:8080/api/auth/register -H "Content-Type: application/json" -d "{ \"username\": \"myuser\", \"password\": \"mypass\" }"
 ```
 
-### Step 2: Login and get a token
+### Step 2: Login and get tokens
 
 ```cmd
 curl -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d "{ \"username\": \"admin\", \"password\": \"password\" }"
 ```
 
-Save the returned token. Use it in all subsequent requests as shown below.
+Response:
+
+```json
+{
+  "accessToken": "eyJ...",
+  "refreshToken": "550e8400-e29b-41d4-a716-..."
+}
+```
+
+Save both tokens. Use `accessToken` in all subsequent requests. When it expires (15 minutes), use `refreshToken` to get a new pair.
 
 ### Step 3: Create a book
 
@@ -240,6 +258,20 @@ curl -X PUT http://localhost:8080/api/books/1 -H "Content-Type: application/json
 
 ```cmd
 curl -X DELETE http://localhost:8080/api/books/1 -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Step 8: Refresh tokens (when access token expires)
+
+```cmd
+curl -X POST http://localhost:8080/api/auth/refresh -H "Content-Type: application/json" -d "{ \"refreshToken\": \"YOUR_REFRESH_TOKEN\" }"
+```
+
+Returns a new `{ accessToken, refreshToken }` pair. The old refresh token is immediately invalidated.
+
+### Step 9: Logout
+
+```cmd
+curl -X POST http://localhost:8080/api/auth/logout -H "Content-Type: application/json" -d "{ \"refreshToken\": \"YOUR_REFRESH_TOKEN\" }"
 ```
 
 ---
@@ -288,6 +320,7 @@ The app is fully containerized using Docker Compose. The Docker setup uses **Pos
 | ---------- | ------------------ | ---- | ----------------------- |
 | `app`      | Built from source  | 8080 | Spring Boot application |
 | `postgres` | postgres:16-alpine | 5432 | PostgreSQL database     |
+| `pgadmin`  | dpage/pgadmin4     | 5050 | pgAdmin UI              |
 
 ### How It Works
 
@@ -309,7 +342,7 @@ The app is fully containerized using Docker Compose. The Docker setup uses **Pos
 
 ## Important Notes
 
-* JWT tokens expire after 1 hour
+* Access tokens expire after **15 minutes**; refresh tokens last **7 days** and are stored in the database
 * H2 is used for local dev (data resets on restart); Docker uses PostgreSQL with persistent storage
 * Passwords are hashed with BCrypt (never stored in plain text)
 * A default admin user is seeded on startup (`admin` / `password`)
